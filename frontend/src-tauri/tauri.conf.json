@@ -36,7 +36,22 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [],
-    "externalBin": ["binaries/backend"]
+    "externalBin": ["binaries/backend"],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "wix": {
+        "language": "ru-RU"
+      },
+      "nsis": {
+        "languages": ["Russian"],
+        "displayLanguageSelector": false,
+        "installMode": "currentUser",
+        "shortcutName": "Olympic Analyzer",
+        "createDesktopShortcut": true,
+        "createStartMenuShortcut": true
+      }
+    }
   }
 }

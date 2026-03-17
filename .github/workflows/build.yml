@@ -2,23 +2,20 @@ name: Build Olympic Analyzer
 
 on:
   push:
-    branches: [ main ]      # запускать при каждом push в main
-  workflow_dispatch:          # или вручную из интерфейса GitHub
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-windows:
-    runs-on: windows-latest   # используем Windows машину GitHub
+    runs-on: windows-latest
 
     steps:
-      # 1. Скачиваем твой код
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Устанавливаем Rust
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      # 3. Кэшируем Rust зависимости (чтобы не качать каждый раз)
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -26,7 +23,6 @@ jobs:
             frontend/src-tauri -> target
             backend -> target
 
-      # 4. Устанавливаем Node.js
       - name: Install Node
         uses: actions/setup-node@v4
         with:
@@ -34,14 +30,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      # 5. Компилируем Rust бэкенд
       - name: Build backend
         working-directory: backend
         run: cargo build --release
-        # Результат: backend/target/release/backend.exe
 
-      # 6. Копируем бэкенд в папку Tauri
-      # Имя файла ВАЖНО — Tauri требует суффикс платформы
       - name: Copy backend to Tauri binaries
         shell: bash
         run: |
@@ -49,22 +41,18 @@ jobs:
           cp backend/target/release/backend.exe \
              frontend/src-tauri/binaries/backend-x86_64-pc-windows-msvc.exe
 
-      # 7. Устанавливаем npm зависимости фронта
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
 
-      # 8. Собираем Tauri приложение
-      # Это создаст .exe установщик
       - name: Build Tauri app
         working-directory: frontend
         run: npm run tauri build
         env:
           TAURI_SIGNING_PRIVATE_KEY: ''
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
+          TAURI_WINDOWS_WEBVIEW2_INSTALL_MODE: 'DownloadBootstrapper'
 
-      # 9. Сохраняем готовый .exe как артефакт
-      # Его можно скачать из интерфейса GitHub
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
