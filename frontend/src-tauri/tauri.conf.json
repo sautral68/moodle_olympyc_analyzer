@@ -48,9 +48,10 @@
         "languages": ["Russian"],
         "displayLanguageSelector": false,
         "installMode": "currentUser",
-        "shortcutName": "Olympic Analyzer",
-        "createDesktopShortcut": true,
-        "createStartMenuShortcut": true
+        "shortcuts": {
+          "desktop": true,
+          "startMenu": true
+        }
       }
     }
   }
