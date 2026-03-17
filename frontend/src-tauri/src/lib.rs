@@ -1,4 +1,5 @@
 use std::process::Command;
+use std::sync::Mutex;
 use tauri::Manager;
 use tauri::Listener;
 
@@ -17,14 +18,19 @@ pub fn run() {
 
             println!("Starting backend from: {:?}", backend_path);
 
-            let mut child = Command::new(&backend_path)
+            let child = Command::new(&backend_path)
                 .spawn()
                 .expect("Failed to start backend");
+
+            // Оборачиваем в Mutex чтобы можно было вызвать kill() внутри closure
+            let child = Mutex::new(child);
 
             let handle = app.handle().clone();
             handle.listen("tauri://destroyed", move |_| {
                 println!("App closing, killing backend...");
-                let _ = child.kill();
+                if let Ok(mut c) = child.lock() {
+                    let _ = c.kill();
+                }
             });
 
             Ok(())
