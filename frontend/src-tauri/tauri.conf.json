@@ -41,17 +41,8 @@
       "webviewInstallMode": {
         "type": "downloadBootstrapper"
       },
-      "wix": {
-        "language": "ru-RU"
-      },
       "nsis": {
-        "languages": ["Russian"],
-        "displayLanguageSelector": false,
-        "installMode": "currentUser",
-        "shortcuts": {
-          "desktop": true,
-          "startMenu": true
-        }
+        "installMode": "currentUser"
       }
     }
   }
