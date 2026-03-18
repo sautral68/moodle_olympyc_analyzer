@@ -30,6 +30,7 @@ export default function Sidebar() {
       overflow: 'hidden',
     }}>
 
+      {/* Декоративные круги */}
       <div style={{
         position: 'absolute', top: -60, right: -60,
         width: 180, height: 180, borderRadius: '50%',
@@ -47,39 +48,55 @@ export default function Sidebar() {
       <div style={{
         height: 'var(--header-height)',
         display: 'flex', alignItems: 'center',
-        padding: '0 20px',
+        padding: '0 16px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
-        gap: 12, position: 'relative', zIndex: 1,
+        gap: 10, position: 'relative', zIndex: 1,
       }}>
-        <div style={{ position: 'relative' }}>
+        {/* Пульсирующий логотип */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
           <motion.div
             animate={{ scale: [1, 1.08, 1] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             style={{
-              width: 38, height: 38, borderRadius: 11,
+              width: 36, height: 36, borderRadius: 10,
               background: 'linear-gradient(135deg, var(--green-main), var(--green-light))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 0 20px rgba(39,174,96,0.4)',
               position: 'relative', zIndex: 1,
             }}
           >
-            <Activity size={18} color="white" strokeWidth={2.5} />
+            <Activity size={17} color="white" strokeWidth={2.5} />
           </motion.div>
           <motion.div
             animate={{ scale: [1, 1.6], opacity: [0.4, 0] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
             style={{
-              position: 'absolute', inset: 0, borderRadius: 11,
+              position: 'absolute', inset: 0, borderRadius: 10,
               background: 'rgba(39,174,96,0.3)', zIndex: 0,
             }}
           />
         </div>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'white', lineHeight: 1.2 }}>
+
+        {/* Тема рядом с лого */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, color: 'white',
+            lineHeight: 1.3, 
+          }}>
             {t.nav.appName}
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', fontWeight: 400 }}>
-            {t.nav.appSub}
+          <div style={{
+            fontSize: 9,
+            color: 'rgba(255,255,255,0.45)',
+            fontWeight: 400,
+            lineHeight: 1.3,
+            marginTop: 1,
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+          }}>
+            {t.nav.appSubject}
           </div>
         </div>
       </div>
@@ -127,15 +144,48 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Footer — имя, группа, год */}
       <div style={{
-        padding: '16px 20px',
+        padding: '14px 16px',
         borderTop: '1px solid rgba(255,255,255,0.06)',
         position: 'relative', zIndex: 1,
       }}>
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', textAlign: 'center' }}>
-          Olympic Analyzer v1.0
-        </p>
+        {/* Разделитель */}
+        <div style={{
+          height: 1,
+          background: 'linear-gradient(90deg, transparent, rgba(39,174,96,0.4), transparent)',
+          marginBottom: 12,
+        }} />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Аватар с инициалами */}
+          <div style={{
+            width: 34, height: 34, borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--green-dark), var(--green-main))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 11, fontWeight: 700, color: 'white',
+            flexShrink: 0,
+            boxShadow: '0 0 12px rgba(39,174,96,0.3)',
+          }}>
+            БМ
+          </div>
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{
+              fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)',
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              marginBottom: 2,
+            }}>
+              {t.nav.authorName}
+            </p>
+            <p style={{
+              fontSize: 10, color: 'rgba(255,255,255,0.4)',
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {t.nav.authorGroup} · {t.nav.authorYear}
+            </p>
+          </div>
+        </div>
       </div>
     </aside>
   )

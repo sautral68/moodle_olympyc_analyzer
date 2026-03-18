@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Users, ChevronUp, ChevronDown, X, Download, FileText } from 'lucide-react'
+import { Search, Users, ChevronUp, ChevronDown, X, CheckCircle, XCircle, Info } from 'lucide-react'
 import { api } from '../api/index'
-import { exportToCSV, exportToExcel } from '../utils/export'
 import { useLang } from '../i18n/index.jsx'
 import StudentModal from '../components/StudentModal'
 
@@ -27,9 +26,9 @@ function GradeBadge({ grade }) {
 
 function Toast({ message, type, onClose }) {
   const config = {
-    success: { bg: '#f0faf4', border: 'var(--green-border)', color: 'var(--green-dark)', icon: '✅' },
-    info:    { bg: '#ebf5fb', border: '#aed6f1', color: '#2980b9', icon: '📥' },
-    error:   { bg: '#fdedec', border: '#f1948a', color: '#c0392b', icon: '❌' },
+    success: { bg: '#f0faf4', border: 'var(--green-border)', color: 'var(--green-dark)', icon: <CheckCircle size={15} /> },
+    info:    { bg: '#ebf5fb', border: '#aed6f1',             color: '#2980b9',            icon: <Info size={15} /> },
+    error:   { bg: '#fdedec', border: '#f1948a',             color: '#c0392b',            icon: <XCircle size={15} /> },
   }
   const c = config[type] || config.info
   return (
@@ -40,12 +39,13 @@ function Toast({ message, type, onClose }) {
       transition={{ duration: 0.2 }}
       style={{
         display: 'flex', alignItems: 'center', gap: 10,
-        padding: '12px 16px', background: c.bg,
-        border: `1px solid ${c.border}`, borderRadius: 'var(--radius-sm)',
+        padding: '12px 16px',
+        background: c.bg, border: `1px solid ${c.border}`,
+        borderRadius: 'var(--radius-sm)',
         fontSize: 13, color: c.color, fontWeight: 500,
       }}
     >
-      <span>{c.icon}</span>
+      <span style={{ flexShrink: 0 }}>{c.icon}</span>
       <span style={{ flex: 1 }}>{message}</span>
       <button onClick={onClose} style={{
         background: 'none', border: 'none', cursor: 'pointer', color: c.color, padding: 2,
@@ -85,21 +85,6 @@ export default function Students() {
   function showToast(message, type = 'info') {
     setToast({ message, type })
     setTimeout(() => setToast(null), 3500)
-  }
-
-  function handleExport(type) {
-    if (filtered.length === 0) return
-    try {
-      if (type === 'csv') {
-        exportToCSV(filtered, 'olympiad_report')
-        showToast(`${t.students.csvDownloaded} — ${filtered.length} ${t.header.students}`, 'success')
-      } else {
-        exportToExcel(filtered, 'olympiad_report')
-        showToast(`${t.students.excelDownloaded}, ${filtered.length} ${t.header.students}`, 'success')
-      }
-    } catch (e) {
-      showToast(`${t.students.exportError}: ` + e.message, 'error')
-    }
   }
 
   const handleSort = (field) => {
@@ -146,7 +131,11 @@ export default function Students() {
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {/* Toolbar — только поиск и фильтры */}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+
+          {/* Поиск */}
           <div style={{ position: 'relative', flex: 1, maxWidth: 340 }}>
             <Search size={16} style={{
               position: 'absolute', left: 12, top: '50%',
@@ -169,6 +158,7 @@ export default function Students() {
             />
           </div>
 
+          {/* Фильтр по оценке */}
           <select value={filterGrade} onChange={e => setFilterGrade(e.target.value)} style={{
             padding: '9px 12px', border: '1px solid var(--gray-200)',
             borderRadius: 'var(--radius-sm)', fontSize: 13, outline: 'none',
@@ -181,6 +171,7 @@ export default function Students() {
             <option value="2">2 — {t.students.bad}</option>
           </select>
 
+          {/* Счётчик */}
           <div style={{
             padding: '9px 14px', background: 'var(--green-bg)',
             borderRadius: 'var(--radius-sm)', border: '1px solid var(--green-border)',
@@ -190,40 +181,20 @@ export default function Students() {
             <Users size={14} />
             {loading ? '...' : `${filtered.length} ${t.students.outOf} ${students.length}`}
           </div>
-
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-            <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
-              onClick={() => handleExport('csv')} disabled={filtered.length === 0}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px',
-                background: 'var(--white)', border: '1px solid var(--gray-200)',
-                borderRadius: 'var(--radius-sm)', color: 'var(--gray-600)',
-                fontSize: 13, fontWeight: 500,
-                cursor: filtered.length === 0 ? 'not-allowed' : 'pointer',
-                opacity: filtered.length === 0 ? 0.5 : 1, transition: 'var(--transition)',
-              }}>
-              <Download size={14} /> CSV
-            </motion.button>
-
-            <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
-              onClick={() => handleExport('excel')} disabled={filtered.length === 0}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6, padding: '9px 14px',
-                background: 'var(--green-bg)', border: '1px solid var(--green-border)',
-                borderRadius: 'var(--radius-sm)', color: 'var(--green-dark)',
-                fontSize: 13, fontWeight: 600,
-                cursor: filtered.length === 0 ? 'not-allowed' : 'pointer',
-                opacity: filtered.length === 0 ? 0.5 : 1, transition: 'var(--transition)',
-              }}>
-              <FileText size={14} /> {t.header.report}
-            </motion.button>
-          </div>
         </div>
 
+        {/* Toast уведомление */}
         <AnimatePresence>
-          {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+          {toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast(null)}
+            />
+          )}
         </AnimatePresence>
 
+        {/* Таблица */}
         <div style={{
           background: 'var(--white)', borderRadius: 'var(--radius-md)',
           boxShadow: 'var(--shadow-md)', border: '1px solid var(--gray-100)', overflow: 'hidden',
@@ -276,7 +247,8 @@ export default function Students() {
                 </tr>
               ) : (
                 filtered.map((student, index) => (
-                  <motion.tr key={student.individual_number}
+                  <motion.tr
+                    key={student.individual_number}
                     whileHover={{ background: 'var(--gray-50)' }}
                     onClick={() => setSelectedStudent(student)}
                     style={{
@@ -291,7 +263,9 @@ export default function Students() {
                       <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--gray-900)' }}>
                         {student.last_name} {student.first_name}
                       </p>
-                      <p style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 1 }}>{student.email}</p>
+                      <p style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 1 }}>
+                        {student.email}
+                      </p>
                     </td>
                     <td style={{ padding: '11px 14px', fontSize: 13, color: 'var(--gray-600)', maxWidth: 180 }}>
                       <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -315,8 +289,12 @@ export default function Students() {
         </div>
       </div>
 
+      {/* Профиль студента */}
       {selectedStudent && (
-        <StudentModal student={selectedStudent} onClose={() => setSelectedStudent(null)} />
+        <StudentModal
+          student={selectedStudent}
+          onClose={() => setSelectedStudent(null)}
+        />
       )}
     </>
   )

@@ -6,7 +6,10 @@ export default {
     top:          'Iň gowy talyplar',
     institutions: 'Guramalar',
     appName:      'Olimpiada',
-    appSub:       'Seljeriji',
+    appSubject:   'Moodle ulgamynyň üsti bilen geçirilen olimpiýadalaryň netijelerini seljerýän programma',
+    authorName:   'Berdiýew Mergenhan',
+    authorGroup:  '4.MUT "A"',
+    authorYear:   '2026-njy ýyl uçurym',
   },
 
   header: {

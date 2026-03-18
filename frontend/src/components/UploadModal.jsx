@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
+import { X, FileSpreadsheet, CheckCircle } from 'lucide-react'
 import { api } from '../api/index'
 import { useLang } from '../i18n/index.jsx'
 
@@ -65,7 +65,8 @@ export default function UploadModal({ onClose, onSuccess }) {
             </p>
           </div>
           <button onClick={onClose} style={{
-            background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)', padding: 4,
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--gray-400)', padding: 4,
           }}>
             <X size={20} />
           </button>
@@ -84,9 +85,26 @@ export default function UploadModal({ onClose, onSuccess }) {
             transition: 'var(--transition)', marginBottom: 16,
           }}
         >
-          <input id="upload-file-input" type="file" accept=".xlsx,.xls"
-            style={{ display: 'none' }} onChange={e => handleFile(e.target.files[0])} />
-          <div style={{ fontSize: 32, marginBottom: 8 }}>{file ? '✅' : '📂'}</div>
+          <input
+            id="upload-file-input" type="file" accept=".xlsx,.xls"
+            style={{ display: 'none' }}
+            onChange={e => handleFile(e.target.files[0])}
+          />
+
+          {/* Иконка */}
+          <div style={{
+            width: 56, height: 56, borderRadius: 14, marginBottom: 14,
+            background: file ? 'var(--green-bg)' : 'var(--gray-100)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: `1px solid ${file ? 'var(--green-border)' : 'var(--gray-200)'}`,
+            margin: '0 auto 14px',
+          }}>
+            {file
+              ? <CheckCircle size={28} color="var(--green-main)" />
+              : <FileSpreadsheet size={28} color="var(--gray-400)" />
+            }
+          </div>
+
           {file ? (
             <>
               <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--green-dark)' }}>{file.name}</p>

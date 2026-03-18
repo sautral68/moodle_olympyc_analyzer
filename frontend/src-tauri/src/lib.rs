@@ -7,14 +7,38 @@ use tauri::Listener;
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            let resource_path = app.path().resource_dir()
-                .expect("Failed to get resource dir");
+            // В dev режиме ищем бэк рядом с проектом
+            // В production — рядом с установленным приложением
+            #[cfg(dev)]
+            let backend_path = {
+                let manifest_dir = env!("CARGO_MANIFEST_DIR");
+                
+                #[cfg(target_os = "windows")]
+                let path = std::path::PathBuf::from(manifest_dir)
+                    .join("binaries")
+                    .join("backend-x86_64-pc-windows-msvc.exe");
+                
+                #[cfg(not(target_os = "windows"))]
+                let path = std::path::PathBuf::from(manifest_dir)
+                    .join("binaries")
+                    .join("backend-x86_64-unknown-linux-gnu");
+                
+                path
+            };
 
-            #[cfg(target_os = "windows")]
-            let backend_path = resource_path.join("binaries/backend.exe");
-            
-            #[cfg(not(target_os = "windows"))]
-            let backend_path = resource_path.join("binaries/backend");
+            #[cfg(not(dev))]
+            let backend_path = {
+                let resource_path = app.path().resource_dir()
+                    .expect("Failed to get resource dir");
+
+                #[cfg(target_os = "windows")]
+                let path = resource_path.join("binaries/backend.exe");
+
+                #[cfg(not(target_os = "windows"))]
+                let path = resource_path.join("binaries/backend");
+
+                path
+            };
 
             println!("Starting backend from: {:?}", backend_path);
 
@@ -22,7 +46,6 @@ pub fn run() {
                 .spawn()
                 .expect("Failed to start backend");
 
-            // Оборачиваем в Mutex чтобы можно было вызвать kill() внутри closure
             let child = Mutex::new(child);
 
             let handle = app.handle().clone();

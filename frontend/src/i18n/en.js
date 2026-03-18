@@ -6,7 +6,10 @@ export default {
     top:          'Top Students',
     institutions: 'Institutions',
     appName:      'Olympiad',
-    appSub:       'Analyzer',
+    appSubject:   'Moodle Olympiad Results Analyzer',
+    authorName:   'Berdiyev Mergenhan',
+    authorGroup:  '4.IST "A"',
+    authorYear:   '2026 Graduate',
   },
 
   header: {

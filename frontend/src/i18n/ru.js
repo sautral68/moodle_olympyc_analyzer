@@ -7,7 +7,10 @@ export default {
     top:          'Топ студентов',
     institutions: 'Учреждения',
     appName:      'Олимпиада',
-    appSub:       'Анализатор',
+    appSubject:   'Анализ результатов олимпиад Moodle',
+    authorName:   'Бердиев Мергенхан',
+    authorGroup:  '4.ИСТ "А"',
+    authorYear:   'Выпускник 2026',
   },
 
   // Хедер
