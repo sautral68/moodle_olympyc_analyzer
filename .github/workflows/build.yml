@@ -16,6 +16,17 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Configure Rust SSL
+        run: |
+          mkdir -p $env:USERPROFILE\.cargo
+          @"
+          [http]
+          check-revoke = false
+
+          [net]
+          retry = 5
+          "@ | Out-File -FilePath "$env:USERPROFILE\.cargo\config.toml" -Encoding utf8
+
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -51,7 +62,6 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ''
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
-          TAURI_WINDOWS_WEBVIEW2_INSTALL_MODE: 'DownloadBootstrapper'
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
