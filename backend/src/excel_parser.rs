@@ -68,7 +68,7 @@ fn parse_headers(header_row: &[Data]) -> Result<Headers> {
         if let Some(subject_name) = cell.get_string() {
             let subject = subject_name.trim().to_string();
             if !subject.is_empty() && subject != "-" {
-                tracing::debug!("   Колонка {}: {}", idx, subject);
+                tracing::debug!("   Column {}: {}", idx, subject);
                 subject_columns.push((idx, subject));
             }
         }
@@ -161,7 +161,7 @@ mod tests {
     
     #[test]
     fn test_parse_excel() {
-        let result = parse_excel("./olimpiada_test_data.xlsx");
+        let result = parse_excel("/home/darkon/moodle_diplom/en.xlsx");
         
         match result {
             Ok(students) => {
