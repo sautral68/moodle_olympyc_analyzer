@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { Upload, FileText, CheckCircle, XCircle, X } from 'lucide-react'
@@ -50,6 +50,7 @@ function Toast({ message, type, onClose }) {
 
 export default function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
   const { lang, setLang, t } = useLang()
   const [showUpload, setShowUpload] = useState(false)
   const [uploadDone, setUploadDone] = useState(null)
@@ -245,7 +246,8 @@ export default function Layout() {
               'success'
             )
             setTimeout(() => setUploadDone(null), 4000)
-            setTimeout(() => window.location.reload(), 500)
+            // Trigger re-render of child pages by navigating away and back
+            navigate(location.pathname, { replace: true })
           }}
         />
       )}

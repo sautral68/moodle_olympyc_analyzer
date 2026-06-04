@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-const BASE = '/api'
+// In dev mode Vite proxies /api → localhost:3000
+// In production (Tauri .exe) there is no Vite, so call backend directly
+const isDev = import.meta.env.DEV
+const BASE = isDev ? '/api' : 'http://localhost:3000'
 
 export const api = {
   // Здоровье бэка

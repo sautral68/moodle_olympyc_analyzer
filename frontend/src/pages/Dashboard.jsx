@@ -57,6 +57,7 @@ export default function Dashboard() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    let attempts = 0
     async function load() {
       try {
         const [statsRes, topRes] = await Promise.all([api.getStats(), api.getTop(5)])
@@ -64,7 +65,13 @@ export default function Dashboard() {
         setStats(statsRes.data)
         setTop(topRes.data)
       } catch (e) {
-        setError(t.dashboard.noData)
+        // Backend may still be starting up — retry up to 5 times
+        if (attempts < 5) {
+          attempts++
+          setTimeout(load, 1000)
+        } else {
+          setError(t.dashboard.noData)
+        }
       } finally {
         setLoading(false)
       }

@@ -74,7 +74,7 @@ export default function Students() {
     try {
       await new Promise(r => setTimeout(r, 250))
       const res = await api.getStudents()
-      setStudents(res.data.students)
+      setStudents(res.data.students || [])
     } catch (e) {
       console.error(e)
     } finally {
