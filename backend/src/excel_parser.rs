@@ -96,11 +96,23 @@ fn parse_student_row(
             .context(format!("Invalid string at column {}", idx))
     };
 
-    // Safely get number
+    // Safely get number (handles both float and integer cell types)
     let get_number = |idx: usize| -> Result<f64> {
-        row.get(idx)
-            .and_then(|cell| cell.get_float())
-            .context(format!("Invalid number at column {}", idx))
+        let cell = row.get(idx)
+            .context(format!("Missing column at index {}", idx))?;
+        // try float first, then integer fallback
+        if let Some(f) = cell.get_float() {
+            return Ok(f);
+        }
+        if let Some(i) = cell.get_int() {
+            return Ok(i as f64);
+        }
+        // last resort: parse from string
+        if let Some(s) = cell.get_string() {
+            return s.trim().parse::<f64>()
+                .context(format!("Cannot parse number from string at column {}", idx));
+        }
+        anyhow::bail!("Invalid number at column {}", idx)
     };
 
     // Parse fixed columns (from 0 to 6)
@@ -116,12 +128,18 @@ fn parse_student_row(
     let mut subject_grades = HashMap::new();
 
     for (col_idx, subject_name) in &headers.subject_columns {
-        // Get grade for this subject
-        if let Some(grade_value) = row.get(*col_idx)
-            .and_then(|cell| cell.get_float())
-            .map(|f| f as u8)
-            .filter(|&g| (2..=5).contains(&g))
-        {
+        // Get grade for this subject — handle both float and integer cell types
+        let grade_opt = row.get(*col_idx).and_then(|cell| {
+            if let Some(f) = cell.get_float() {
+                Some(f as u8)
+            } else if let Some(i) = cell.get_int() {
+                Some(i as u8)
+            } else {
+                None
+            }
+        }).filter(|&g| (2..=5).contains(&g));
+
+        if let Some(grade_value) = grade_opt {
             subject_grades.insert(subject_name.clone(), grade_value);
         }
     }

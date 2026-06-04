@@ -4,6 +4,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use tokio::fs;
+use std::env;
 use crate::handlers::AppState;
 use crate::excel_parser::{parse_excel, get_all_subjects};
 use crate::models::ErrorResponse;
@@ -14,16 +15,32 @@ pub async fn upload_excel(
 ) -> Result<impl IntoResponse, (StatusCode, Json<ErrorResponse>)> {
     tracing::info!("📤 Getting request to upload a file");
 
-    while let Some(field) = multipart.next_field().await.unwrap() {
+    while let Some(field) = multipart.next_field().await.map_err(|e| (
+        StatusCode::BAD_REQUEST,
+        Json(ErrorResponse {
+            error: "multipart_error".to_string(),
+            message: format!("Failed to read multipart field: {}", e),
+        }),
+    ))? {
         let name = field.name().unwrap_or("").to_string();
 
         if name == "file" {
             let filename = field.file_name().unwrap_or("uploaded.xlsx").to_string();
-            let data = field.bytes().await.unwrap();
+
+            let data = field.bytes().await.map_err(|e| (
+                StatusCode::BAD_REQUEST,
+                Json(ErrorResponse {
+                    error: "read_error".to_string(),
+                    message: format!("Failed to read file bytes: {}", e),
+                }),
+            ))?;
 
             tracing::info!("📥 Getting file: {} ({} bytes)", filename, data.len());
 
-            let temp_path = format!("temp_{}", filename);
+            // Save to temp dir instead of current directory
+            let temp_path = env::temp_dir().join(format!("olympic_{}", filename));
+            let temp_path_str = temp_path.to_string_lossy().to_string();
+
             fs::write(&temp_path, &data).await.map_err(|e| (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(ErrorResponse {
@@ -32,13 +49,12 @@ pub async fn upload_excel(
                 }),
             ))?;
 
-            match parse_excel(&temp_path) {
+            match parse_excel(&temp_path_str) {
                 Ok(students) => {
                     let subjects = get_all_subjects(&students);
                     let students_count = students.len();
                     let subjects_count = subjects.len();
 
-                    // ✅ Реально обновляем стейт
                     *state.students.write().unwrap() = students;
                     *state.available_subjects.write().unwrap() = subjects;
 
