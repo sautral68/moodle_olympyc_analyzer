@@ -1,7 +1,8 @@
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use tauri::Manager;
 use tauri::Listener;
 use tauri_plugin_shell::ShellExt;
+use tauri_plugin_shell::process::CommandChild;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -14,12 +15,16 @@ pub fn run() {
                 Ok(sidecar) => {
                     match sidecar.spawn() {
                         Ok((_, child)) => {
-                            let child = Mutex::new(child);
+                            let child: Arc<Mutex<Option<CommandChild>>> =
+                                Arc::new(Mutex::new(Some(child)));
+                            let child_clone = child.clone();
                             let handle2 = app.handle().clone();
                             handle2.listen("tauri://destroyed", move |_| {
                                 eprintln!("[Olympic Analyzer] App closing, killing backend...");
-                                if let Ok(mut c) = child.lock() {
-                                    let _ = c.kill();
+                                if let Ok(mut guard) = child_clone.lock() {
+                                    if let Some(c) = guard.take() {
+                                        let _ = c.kill();
+                                    }
                                 }
                             });
                             eprintln!("[Olympic Analyzer] Backend started successfully");
